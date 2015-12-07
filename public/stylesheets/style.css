@@ -1,0 +1,45 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+#industry_name{
+	width:100px;
+	display: inline-block;
+}
+.industry-item{
+	float: left;
+	border-radius: 5px;
+	padding:7px 10px;
+	background: #ccc;
+}
+.industry-item:hover{
+	cursor: pointer;
+}
+.industry-item{
+	margin-right: 10px;
+	margin-bottom:10px;
+}
+.add{
+	float:left;
+}
+.loading{
+	text-align: center;
+	display: none;
+}
+.loading-el{
+	background: url('../images/loading.gif') no-repeat;
+	padding-left: 40px;
+	height: 32px;
+	line-height: 32px;
+	display:inline-block;
+}
+.no-data{
+	text-align: center;
+	height: 25px;
+	line-height: 25px;
+	display: none;
+}

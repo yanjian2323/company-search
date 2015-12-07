@@ -1,0 +1,91 @@
+<% layout('main') -%>
+<% stylesheet('stylesheets/style.css') %>
+<% script('javascripts/jquery/dist/jquery.js')%>
+<% script('javascripts/bootstrap/dist/js/bootstrap.js')%>
+<% script('javascripts/My97DatePicker/WdatePicker.js')%>
+<% script('javascripts/jqueryTmpl.js')%>
+<% script('javascripts/search.js')%>
+<div class="container">
+	<div class="form-search">
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label for="start_date" class="col-md-2 control-label">注册登记申请日期：</label>
+				<div class="col-md-2">
+					<input type="text" onclick="WdatePicker()" name="start_date" id="start_date" class="form-control" />
+				</div>
+				<div class="col-md-2">
+					<input type="text"  onclick="WdatePicker()" name="end_date" id="end_date" class="form-control" />
+				</div>
+				<div class="col-md-1">
+					<button class="btn btn-primary btn-search">搜 索</button>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="start_date" class="col-md-2 control-label">行业：</label>
+				<div class="col-md-10 clearfix">
+					<div class="industry-list">
+						
+					</div>
+					<div class="add">
+						<input type="text" id="industry_name" placeholder="行业名称" class="form-control" />
+						<button class="btn btn-primary btn-sm btn-add-industry">添加</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<!-- <button class="btn btn-primary btn-add-industry">行业</button> -->
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th class="col-md-1">#</th>
+				<th class="col-md-2">申请日期</th>
+				<th class="col-md-2">注册日期</th>
+				<th class="col-md-5">企业名称</th>
+				<th class="col-md-2">状态</th>
+	        </tr>
+		</thead>
+		<tbody id="body_list">
+			
+		</tbody>
+	</table>
+	<div class="loading">
+		<span class="loading-el">正在加载数据...</span>
+	</div>
+	<p class="no-data">没有搜索到的数据...</p>
+</div>
+<div id="industry_modal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">添加行业</h4>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" placeholder="填入多个行业,以逗号分隔"  />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default btn-close" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary btn-save">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script id="company-list-tmpl" type="text/x-jquery-tmpl">
+	<tr class="${(date == register_date || !register_date) ? '' : 'hidden'}">
+		<td>${$value}</td>
+		<td>${date}</td>
+		<td>${register_date}</td>
+		<td>${name}</td>
+		<td>${status}</td>
+	</tr>
+</script>
+<script id="industry-tmpl" type="text/x-jquery-tmpl">
+	<span class="industry-item">
+		<span class="industry-name">${industry}</span>
+		<span class="glyphicon glyphicon-remove industry-close"></span>
+	</span>
+</script>
+<script id="empty-tmpl" type="text/x-jquery-tmpl">
+	
+</script>
