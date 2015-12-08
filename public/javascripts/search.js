@@ -8,7 +8,7 @@ var $industry_list = $('.industry-list'),
 
 function get_company_page_info(query){
 	return $.ajax({
-		url:'http://localhost:3000/search?date='+new Date().getTime(),
+		url:'search?date='+new Date().getTime(),
 		data: query
 	});
 }
@@ -16,7 +16,7 @@ function get_company_page_info(query){
 function get_company(page_index, query){
 	query = $.extend(query, {page_index: page_index});
 	return $.ajax({
-		url:'http://localhost:3000/search/list?date='+new Date().getTime(),
+		url:'search/list?date='+new Date().getTime(),
 		data: query
 	});
 }
