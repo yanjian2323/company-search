@@ -2,13 +2,25 @@ var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var path = require('path');
-var cheerio = require('cheerio'),
+var logger = require('../logger'),
+	cheerio = require('cheerio'),
 	async = require('async'),
 	_ = require('lodash'),
 	seq = require('seq'),
 	request = require('request'),
 	register = require('../lib/register');
 
+var keywords_name = ['分公司'];
+
+function contain_name(name){
+	for(var i = 0; i < keywords_name.length; i++){
+		if(name.indexOf(keywords_name[i]) > -1){
+			logger.company_name.info(name + ' is in keywords');
+			return true;
+		}
+	}
+	return false;
+}
 function filter_company(html){
 	var $ = cheerio.load(html),
 		filtered_company = [],
@@ -181,21 +193,21 @@ router.get('/:list', function(req, res, next){
 
 				//得到公司的注册时间
 				async.each(com, function(compnay, next){
+					if(contain_name(compnay.name)){
+						return next();
+					}
 					register.get_date(compnay.name, function(err, date){
-						if(err){
-							compnay.is_del = true;
+						if(!err && !date){//没有注册日期
+							return next();
 						}
+						// if(err) return next();
+
 						compnay.register_date = date;
+						arr_company.push(compnay);
 						next();
 					});
 				}, function(err){
-					com = _.filter(com, function(company){
-						if(!company.is_del){
-							return true;
-						}
-						return false;
-					});
-					arr_company = arr_company.concat(com);
+					// arr_company = arr_company.concat(com);
 					that();
 				});
 			});
@@ -206,6 +218,7 @@ router.get('/:list', function(req, res, next){
 				data : arr_company
 			});
 		})
+	;
 });
 
 module.exports = router;

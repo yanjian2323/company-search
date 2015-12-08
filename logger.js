@@ -16,6 +16,13 @@ log4js.configure({
        filename: "./logs/company_id_error",
        alwaysIncludePattern: true,
        pattern: "-yyyy-MM-dd.log"
+    },
+    {
+      category:"company_name_error",
+       type: "dateFile",
+       filename: "./logs/company_name_error",
+       alwaysIncludePattern: true,
+       pattern: "-yyyy-MM-dd.log"
     }
   ]
 });
@@ -28,7 +35,12 @@ var company_id = log4js.getLogger('company_id_error');
 
 company_id.setLevel('INFO');
 
+var company_name = log4js.getLogger('company_name_error');
+
+company_name.setLevel('INFO');
+
 module.exports = {
 	register : register,
-  company_id : company_id
+  company_id : company_id,
+  company_name : company_name
 };
