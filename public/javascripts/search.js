@@ -99,13 +99,11 @@ $('.btn-search').on('click', function(e){
 		var query = get_query(industry);
 
 		arr_query.push(query);
+
 		get_company_page_info(query)
 		.done(function(res){
-			index++;
-			arr_count.push(parseInt(res.data.page_count));
-			if(arr_search_industry.length === index){
-				load_company(arr_query, arr_count);
-			}
+			query.total = res.data.page_count;
+			get_company(1, query);
 		});
 	});
 });
