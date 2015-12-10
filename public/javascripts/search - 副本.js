@@ -47,6 +47,7 @@ function reset(){
 	$('#body_list').html('');
 	$loading.show();
 	$empty.hide();
+	arr_search_result = [];
 }
 
 function is_load_complete(index, count){
@@ -98,11 +99,13 @@ $('.btn-search').on('click', function(e){
 		var query = get_query(industry);
 
 		arr_query.push(query);
-
 		get_company_page_info(query)
 		.done(function(res){
-			query.total = res.data.page_count;
-			get_company(1, query);
+			index++;
+			arr_count.push(parseInt(res.data.page_count));
+			if(arr_search_industry.length === index){
+				load_company(arr_query, arr_count);
+			}
 		});
 	});
 });
@@ -130,55 +133,3 @@ $industry_list.on('click', '.industry-close', function(){
 		remove_industry(industry_name);
 	});
 });
-
-var socket = null;
-$('.btn-search1').on('click', function(e){
-	e.preventDefault();
-	if(arr_search_industry.length === 0){
-		alert('请先选择行业');
-		return false;
-	}
-	var arr_query = [];
-
-	reset();
-	$(this).attr('disabled', true);
-	if(!socket){
-		socket = create_websocket();
-	}
-	$.each(arr_search_industry, function(i){
-		var query = get_query(arr_search_industry[i]);
-
-		arr_query.push(query);
-	});
-	$loading.show();
-	socket.send(arr_query);
-});
-//建立websocket
-function create_websocket(){
-	var socket= io('',{'reconnect':false,'auto connect':false}); 
-
-	// 添加一个连接监听器
-	socket.on('connect',function() { 
-	  console.log('Client has connected to the server!'); 
-	});
-
-	// 添加一个连接监听器
-	socket.on('message',function(data) {
-	  if(data === 'completed'){
-	  	$loading.hide();
-	  	// socket.close();
-	  	return;
-	  }
-	  arr_search_result = arr_search_result.concat(data.list);
-	  console.log('Received a message from the server!',data);
-	  load_data(data.list); 
-	});
-	
-	// 添加一个关闭连接的监听器
-	socket.on('disconnect',function() {
-	  socket.close();
-	  console.log('The client has disconnected!'); 
-	}); 
-
-	return socket;
-}

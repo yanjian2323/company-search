@@ -2,13 +2,25 @@ var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var path = require('path');
-var cheerio = require('cheerio'),
+var logger = require('../logger'),
+	cheerio = require('cheerio'),
 	async = require('async'),
 	_ = require('lodash'),
 	seq = require('seq'),
 	request = require('request'),
 	register = require('../lib/register');
 
+var keywords_name = ['分公司'];
+
+function contain_name(name){
+	for(var i = 0; i < keywords_name.length; i++){
+		if(name.indexOf(keywords_name[i]) > -1){
+			logger.company_name.info(name + ' is in keywords');
+			return true;
+		}
+	}
+	return false;
+}
 function filter_company(html){
 	var $ = cheerio.load(html),
 		filtered_company = [],
@@ -23,6 +35,7 @@ function filter_company(html){
 		company.date = $tr_tds.eq(0).text();
 		company.name = $tr_tds.eq(1).text();
 		company.status = $tr_tds.eq(2).text();
+		company.register_date = '';
 
 		filtered_company.push(company);
 	});
@@ -170,34 +183,39 @@ router.get('/:list', function(req, res, next){
 
 	new seq()
 		.seq(function(){
-			var params = get_request_params(query.page_index, query),
-				that = this;
+			var that = this,
+				arr_page = [];
 
-			request.post({
-				url:url,
-				form: params
-			}, function(err, response, body){
-				var com = filter_company(body);
 
-				//得到公司的注册时间
-				async.each(com, function(compnay, next){
-					register.get_date(compnay.name, function(err, date){
-						if(err){
-							compnay.is_del = true;
-						}
-						compnay.register_date = date;
+			for(var i = 1; i <= query.total; i++){
+				arr_page.push(i);
+			}
+			async.each(arr_page, function(page_index, next){
+				var params = get_request_params(page_index, query);
+
+				request.post({
+					url:url,
+					form: params
+				}, function(err, response, body){
+					var com = filter_company(body),
+						that = this;
+
+					async.each(com, function(compmay, next2){
+						register.get_date(compmay.name, function(err, arr_date){
+							if(err){//找不到company_id，也就是没有执照的
+								arr_company.push(compmay);
+								return next2();
+							}
+							
+							arr_company.push(compmay);
+							next2();
+						});
+					}, function(){
 						next();
 					});
-				}, function(err){
-					com = _.filter(com, function(company){
-						if(!company.is_del){
-							return true;
-						}
-						return false;
-					});
-					arr_company = arr_company.concat(com);
-					that();
 				});
+			}, function(){
+				that();
 			});
 		})
 		.seq(function(){
@@ -206,6 +224,7 @@ router.get('/:list', function(req, res, next){
 				data : arr_company
 			});
 		})
+	;
 });
 
 module.exports = router;
